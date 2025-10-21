@@ -1,0 +1,90 @@
+// === プロジェクト ===
+Table プロジェクト {
+  オーダー番号 varchar [pk, note: '契約番号？']
+  案件コード varchar [note: '内部的な案件コード']
+  PJコード varchar [note: 'プロジェクト種別・ビジネスモデル分類']
+  プロジェクト名称 varchar
+  組織コード varchar [ref: > 組織マスタ.組織ID]
+  現場責任者ID integer [ref: > 人材マスタ.ID]
+  販売先ID integer [ref: > 取引先マスタ.会社ID, note: '実際の契約先']
+  紹介元ID integer [ref: > 取引先マスタ.会社ID, note: '案件紹介元']
+  元請ID integer [ref: > 取引先マスタ.会社ID, note: '元請企業']
+  最終顧客ID integer [ref: > 取引先マスタ.会社ID, note: '最終エンドユーザー']
+  契約形態ID integer [ref: > 契約形態マスタ.契約形態ID]
+  プロジェクトステータス varchar [note: '進行中 / 中断 / 再開 / 完了 など']
+  開始日 date
+  終了日 date
+  システム重要度 varchar
+  サービス内容 varchar
+  事業分野 varchar
+  仕向先業種 varchar
+  技術傾向 varchar
+  created_at timestamp
+}
+
+// === 売上明細 ===
+Table 売上明細 {
+  オーダー番号 varchar [pk, ref: > プロジェクト.オーダー番号]
+  契約金額 integer
+  原価 integer
+  売上担当者ID integer [ref: > 人材マスタ.ID]
+  created_at timestamp
+}
+
+// === プロジェクトアサイン ===
+Table プロジェクトアサイン {
+  アサインID integer [pk]
+  オーダー番号 varchar [ref: > プロジェクト.オーダー番号]
+  人材ID integer [ref: > 人材マスタ.ID]
+  参加日 date
+  離脱日 date
+  プロパー区分 varchar [note: 'プロパー / BP']
+  created_at timestamp
+}
+
+// === 人材マスタ ===
+Table 人材マスタ {
+  ID integer [pk]
+  氏 varchar
+  名 varchar
+  所属部署ID varchar [ref: > 組織マスタ.組織ID]
+  所属会社ID integer [ref: > 取引先マスタ.会社ID]
+  区分 varchar [note: 'プロパー / BP']
+  created_at timestamp
+}
+
+// === 契約形態マスタ ===
+Table 契約形態マスタ {
+  契約形態ID integer [pk]
+  契約形態名 varchar [note: '請負 / 準委任 / 派遣 / 物販 等']
+  created_at timestamp
+}
+
+// === プロジェクト期間履歴 ===
+Table プロジェクト期間履歴 {
+  履歴ID integer [pk]
+  オーダー番号 varchar [ref: > プロジェクト.オーダー番号]
+  開始日 date
+  終了日 date
+  状態 varchar [note: '中断 / 再開 / 延長 など']
+  備考 text
+  created_at timestamp
+}
+
+// === 組織マスタ ===
+Table 組織マスタ {
+  組織ID varchar [pk]
+  組織名 varchar
+  上位組織ID varchar [ref: > 組織マスタ.組織ID]
+  組織区分 varchar
+  管理者社員ID integer [ref: > 人材マスタ.ID]
+  created_at timestamp
+}
+
+// === 取引先マスタ ===
+Table 取引先マスタ {
+  会社ID integer [pk]
+  会社名 varchar
+  会社種別 varchar [note: '紹介会社 / 元請 / 最終顧客 / BP会社など']
+  created_at timestamp
+}

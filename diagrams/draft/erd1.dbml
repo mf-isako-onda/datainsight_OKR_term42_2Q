@@ -1,0 +1,111 @@
+// 売上分析用データモデル
+// 定義形式: DBML
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table プロジェクトコード {
+  PJコード varchar [primary key]
+  オーダー番号 varchar [primary key]
+  プロジェクト名称 varchar
+  組織コード varchar
+  組織名称 varchar
+  現場責任者 varchar
+  現場担当者 varchar
+  販売先 varchar
+  開始日 date
+  終了日 date
+  システム重要度 varchar
+  サービス内容 varchar
+  作業環境 varchar
+  事業分野 varchar
+  仕向先業種 varchar
+  技術傾向 varchar
+  アサインメンバー1 varchar
+  アサインメンバー2 varchar
+  アサインメンバー3 varchar
+  アサインメンバー4 varchar
+  アサインメンバー5 varchar
+  アサインメンバー6 varchar
+  アサインメンバー7 varchar
+  アサインメンバー8 varchar
+  アサインメンバー9 varchar
+  アサインメンバー10 varchar
+  担当グループ varchar
+  created_at timestamp
+}
+
+Table 売上明細 {
+  PJコード varchar [primary key]
+  オーダー番号 varchar [primary key]
+  契約金額 integer
+  原価 integer
+  利益率 integer
+  売上担当者 varchar
+  created_at timestamp
+}
+
+Table アサインメンバー名簿 {
+  ID integer [primary key]
+  氏 varchar
+  名 varchar
+  PJコード varchar [not null]
+  オーダー番号 varchar
+  body text [note: 'Content of the post']
+  プロパーorBP varchar
+  参加日 date
+  離脱日 date
+  参加回数 integer
+  created_at timestamp
+}
+
+Table 社員名簿 {
+  社員ID integer [primary key]
+  氏 varchar
+  名 varchar
+  body text [note: 'Content of the post']
+  所属部署ID integer [not null]
+  created_at timestamp
+}
+
+Table BP名簿 {
+  ID integer [primary key]
+  氏 varchar
+  名 varchar
+  body text [note: 'Content of the post']
+  所属会社ID integer [not null]
+  status varchar
+  created_at timestamp
+}
+
+Table 組織マスタ {
+  組織ID varchar [primary key]
+  組織名 varchar
+  組織名カナ varchar
+  上位組織ID varchar
+  階層レベル varchar
+  組織区分 varchar
+  管理者社員ID varchar
+  body text [note: 'Content of the post']
+  created_at timestamp
+}
+
+Table 取引先マスタ {
+  会社ID integer [primary key]
+  会社名 varchar
+  body text [note: 'Content of the post']
+  プロジェクトコード_id integer [not null]
+  status varchar
+  created_at timestamp
+}
+
+// リレーション定義
+Ref: 社員名簿.社員ID > アサインメンバー名簿.ID
+Ref: BP名簿.ID > アサインメンバー名簿.ID
+Ref: プロジェクトコード.PJコード < 売上明細.PJコード
+Ref: 取引先マスタ.会社ID < BP名簿.所属会社ID
+Ref: プロジェクトコード.オーダー番号 < 売上明細.オーダー番号
+Ref: 取引先マスタ.会社ID < プロジェクトコード.販売先
+Ref: "プロジェクトコード"."アサインメンバー1" < アサインメンバー名簿.ID
+Ref: 組織マスタ.組織ID < プロジェクトコード.担当グループ
+Ref: プロジェクトコード.PJコード < アサインメンバー名簿.PJコード
+Ref: プロジェクトコード.オーダー番号 < アサインメンバー名簿.オーダー番号
+Ref: 組織マスタ.組織ID < 社員名簿.所属部署ID

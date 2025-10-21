@@ -1,0 +1,96 @@
+@startuml
+'==========================================
+' おしゃれテーマ設定
+'==========================================
+!theme spacelab
+hide circle
+skinparam linetype ortho
+skinparam shadowing true
+skinparam roundcorner 20
+skinparam backgroundColor #fdfdfd
+skinparam class {
+  BackgroundColor #ffffff
+  BorderColor #4B9CD3
+  ArrowColor #4B9CD3
+  FontColor #333333
+}
+skinparam note {
+  BackgroundColor #EFF6FC
+  BorderColor #4B9CD3
+}
+
+'==========================================
+' エンティティ定義
+'==========================================
+
+entity "プロジェクト" as Project {
+  *オーダー番号 : varchar <<PK>>  <<契約番号?>>  
+  --
+  オーダーグループID : varchar <<内部管理用ID>>
+  PJコード : varchar <<プロジェクト種別・分類>>
+  プロジェクト名称 : varchar
+  売上高 : integer
+  営業利益率 : integer
+  プロパー売上原価 : integer
+  外注売上原価 : integer
+  組織コード : varchar
+  現場責任者ID : integer
+  販売先ID : integer
+  紹介元ID : integer
+  元請ID : integer
+  最終顧客ID : integer
+  契約形態ID : integer
+  プロジェクトステータス : varchar
+  開始日 : date
+  終了日 : date
+  事業分野 : varchar
+  仕向先業種 : varchar
+  技術傾向 : varchar
+  created_at : timestamp
+}
+
+entity "契約形態マスタ" as ContractType {
+  *契約形態ID : integer <<PK>>
+  契約形態名 : varchar
+  created_at : timestamp
+}
+
+entity "プロジェクト期間履歴" as ProjectPeriod {
+  *履歴ID : integer <<PK>>
+  オーダー番号 : varchar
+  開始日 : date
+  終了日 : date
+  状態 : varchar
+  備考 : text
+  created_at : timestamp
+}
+
+entity "組織マスタ" as Org {
+  *組織ID : varchar <<PK>>
+  組織名 : varchar
+  上位組織ID : varchar
+  組織区分 : varchar
+  管理者社員ID : integer
+  created_at : timestamp
+}
+
+entity "取引先マスタ" as Partner {
+  *会社ID : integer <<PK>>
+  会社名 : varchar
+  会社種別 : varchar
+  created_at : timestamp
+}
+
+'==========================================
+' リレーション定義
+'==========================================
+ProjectPeriod }o--|| Project : "オーダー番号"
+Project }o--|| Org : "組織コード → 組織ID"
+Project }o--|| Partner : "販売先ID → 会社ID"
+Project }o--|| Partner : "紹介元ID → 会社ID"
+Project }o--|| Partner : "元請ID → 会社ID"
+Project }o--|| Partner : "最終顧客ID → 会社ID"
+Project }o--|| ContractType : "契約形態ID → 契約形態ID"
+Org }o--|| Org : "上位組織ID → 組織ID"
+
+@enduml
