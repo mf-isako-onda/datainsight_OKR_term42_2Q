@@ -29,7 +29,6 @@ skinparam note {
 class "オーダー" as Project {
   +オーダー番号 : varchar <<PK>>  
   --
-  実験用 : varchar
   オーダーグループID : varchar
   PJコード : varchar
   プロジェクト名称 : varchar
