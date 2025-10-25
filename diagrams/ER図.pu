@@ -1,8 +1,12 @@
 @startuml ER図
+
+
+
 '==========================================
 ' おしゃれテーマ設定（互換性あり）
 '==========================================
 !define LIGHT_THEME
+left to right direction
 skinparam backgroundColor #FDFDFD
 skinparam shadowing true
 skinparam roundcorner 20
