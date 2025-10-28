@@ -5,10 +5,12 @@ on:
     paths:
       - 'diagrams/**/*.pu'
 
+permissions:
+  contents: write
+
 jobs:
   render:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,24 +23,24 @@ jobs:
 
       - name: Install Graphviz
         run: |
-          sudo apt-get update
+          sudo apt-get update -y
           sudo apt-get install -y graphviz
-          which dot
-          dot -V
 
       - name: Download PlantUML
         run: |
           curl -L -o plantuml.jar https://github.com/plantuml/plantuml/releases/latest/download/plantuml.jar
 
       - name: Generate PNGs from PU files
+        env:
+          GRAPHVIZ_DOT: /usr/bin/dot
         run: |
-          DOT=$(which dot)
-          find diagrams -name "*.pu" -exec java -DGRAPHVIZ_DOT=$DOT -jar plantuml.jar {} \;
+          find diagrams -name "*.pu" -exec java -Djava.awt.headless=true -jar plantuml.jar -tpng {} \;
 
       - name: Commit generated PNGs
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          find diagrams -name "*.png" -exec git add {} \;
+          git add -A diagrams
           git commit -m "Auto-generate PlantUML images" || echo "No changes to commit"
           git push
+ 
