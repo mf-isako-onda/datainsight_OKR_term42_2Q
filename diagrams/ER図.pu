@@ -1,9 +1,7 @@
 @startuml ER図
 
-
-
 '==========================================
-' おしゃれテーマ設定（互換性あり）
+' おしゃれテーマ設定
 '==========================================
 !define LIGHT_THEME
 left to right direction
@@ -26,22 +24,15 @@ skinparam note {
 ' テーブル定義（クラス図スタイル）
 '==========================================
 
-class "オーダー" as Project {
-  +オーダー番号 : varchar <<PK>>  
-  --
-  オーダーグループID : integer
+class "オーダー" as Order {
+  +オーダー番号 : varchar <<PK>>
+  オーダーグループID : varchar
   PJコード : varchar
+  ビジネスの傾向 : varchar
   プロジェクト名称 : varchar
-  売上高 : integer
-  営業利益率 : integer
-  プロパー売上原価 : integer
-  外注売上原価 : integer
   組織コード : varchar
   現場責任者ID : integer
-  販売先ID : integer
-  紹介元ID : integer
-  元請ID : integer
-  最終顧客ID : integer
+  営業責任者ID : integer
   契約形態ID : integer
   プロジェクトステータス : varchar
   開始日 : date
@@ -50,50 +41,137 @@ class "オーダー" as Project {
   仕向先業種 : varchar
   技術傾向 : varchar
   created_at : timestamp
+  updated_at : timestamp
+}
+
+class "実行予算管理ヘッダ" as BudgetHeader {
+  +実行予算管理ID : varchar <<PK>>
+  オーダーグループID : varchar
+  予実区分 : varchar
+  検収金額 : numeric
+  売上高 : numeric
+  プロパー売上高 : numeric
+  外注売上高 : numeric
+  物販売上高 : numeric
+  売上原価 : numeric
+  プロパー売上原価 : numeric
+  外注売上原価 : numeric
+  物販売上原価 : numeric
+  売上総利益 : numeric
+  プロパー売上総利益 : numeric
+  外注売上総利益 : numeric
+  物販売上総利益 : numeric
+  販売管理費 : numeric
+  営業利益 : numeric
+  全体売上総利益率 : numeric
+  営業利益率 : numeric
+  全体工数 : numeric
+  全体PH単価 : numeric
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+class "実行予算管理明細" as BudgetDetail {
+  +実行予算明細ID : varchar <<PK>>
+  オーダーグループID : varchar
+  オーダー番号 : varchar
+  年月ID : varchar
+  売上月 : date
+  予実区分 : varchar
+  検収金額 : numeric
+  進捗率 : numeric
+  売上高 : numeric
+  売上原価 : numeric
+  売上総利益 : numeric
+  販売管理費 : numeric
+  営業利益 : numeric
+  全体売上総利益率 : numeric
+  営業利益率 : numeric
+  全体工数 : numeric
+  全体PH単価 : numeric
+  created_at : timestamp
+  updated_at : timestamp
 }
 
 class "契約形態マスタ" as ContractType {
   +契約形態ID : integer <<PK>>
   契約形態名 : varchar
   created_at : timestamp
-}
-
-class "プロジェクト期間履歴" as ProjectPeriod {
-  +履歴ID : integer <<PK>>
-  オーダー番号 : varchar
-  開始日 : date
-  終了日 : date
-  状態 : varchar
-  備考 : text
-  created_at : timestamp
+  updated_at : timestamp
 }
 
 class "組織マスタ" as Org {
-  +組織ID : varchar <<PK>>
-  組織名 : varchar
-  上位組織ID : varchar
+  +組織コード : varchar <<PK>>
+  部門コード : varchar
+  PC : varchar
+  本部名称 : varchar
+  事業部名称 : varchar
+  部署名称 : varchar
+  グループ名称 : varchar
   組織区分 : varchar
   管理者社員ID : integer
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+class "社員マスタ" as Employee {
+  +社員ID : varchar <<PK>>
+  氏 : varchar
+  名 : varchar
+  所属組織コード : varchar
+  区分 : varchar
+  在籍ステータス : varchar
   created_at : timestamp
 }
 
 class "取引先マスタ" as Partner {
   +会社ID : integer <<PK>>
   会社名 : varchar
-  会社種別 : varchar
+  業界 : varchar
+  業種 : varchar
+  業態 : varchar
+  規模 : varchar
   created_at : timestamp
+  updated_at : timestamp
+}
+
+class "オーダー取引先関係" as OrderPartner {
+  オーダー番号 : varchar
+  取引先区分 : varchar
+  主フラグ : boolean
+  会社ID : integer
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+class "年月ディメンション" as YearMonth {
+  +年月ID : varchar <<PK>>
+  年月 : date
+  月 : integer
+  年 : integer
+  四半期 : integer
+  半期 : varchar
+  期 : varchar
+  created_at : timestamp
+  updated_at : timestamp
 }
 
 '==========================================
-' リレーション
+' リレーション定義
 '==========================================
-ProjectPeriod --> Project : オーダー番号
-Project --> Org : 組織コード → 組織ID
-Project --> Partner : 販売先ID → 会社ID
-Project --> Partner : 紹介元ID → 会社ID
-Project --> Partner : 元請ID → 会社ID
-Project --> Partner : 最終顧客ID → 会社ID
-Project --> ContractType : 契約形態ID → 契約形態ID
-Org --> Org : 上位組織ID → 組織ID
+Order --> Org : 組織コード → 組織コード
+Order --> Employee : 現場責任者ID → 社員ID
+Order --> Employee : 営業責任者ID → 社員ID
+Order --> ContractType : 契約形態ID → 契約形態ID
+
+BudgetHeader --> Order : オーダーグループID → オーダーグループID
+BudgetDetail --> BudgetHeader : オーダーグループID → オーダーグループID
+BudgetDetail --> Order : オーダー番号 → オーダー番号
+BudgetDetail --> YearMonth : 年月ID → 年月ID
+
+Employee --> Org : 所属組織コード → 組織コード
+
+OrderPartner --> Order : オーダー番号 → オーダー番号
+OrderPartner --> Partner : 会社ID → 会社ID
 
 @enduml
